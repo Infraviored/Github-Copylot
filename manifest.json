@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "GithubCopylot",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Copy From Github copilot reviews directly, without having to wait for slow email receiveal...",
   "icons": {
     "32": "icons/icon-32.png",

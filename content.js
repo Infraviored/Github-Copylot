@@ -22,7 +22,7 @@ function injectCopylotButtons() {
       const viewChangesLink = headerActions.querySelector('a');
       if (viewChangesLink) {
         topBtn.style.marginRight = '8px';
-        headerActions.insertBefore(topBtn, viewChangesLink);
+        viewChangesLink.parentNode.insertBefore(topBtn, viewChangesLink);
       } else {
         headerActions.appendChild(topBtn);
       }
@@ -153,17 +153,18 @@ function getThreadMarkdown(thread) {
     });
   }
 
-  // Copilot Comment from JSON
+  // Copilot Comment from DOM (Direct extraction is more robust than JSON)
   let copilotMarkdown = "";
-  const jsonScripts = thread.querySelectorAll('script[type="application/json"]');
-  for (const script of jsonScripts) {
-    try {
-      const data = JSON.parse(script.textContent);
-      if (data?.props?.comment?.author?.login === "Copilot") {
-        copilotMarkdown = data.props.comment.body;
+  const commentBlocks = thread.querySelectorAll('.js-comment');
+  for (const block of commentBlocks) {
+    const author = block.querySelector('.author')?.textContent.trim();
+    if (author === "Copilot") {
+      const body = block.querySelector('.markdown-body');
+      if (body) {
+        copilotMarkdown = convertDOMToMarkdown(body);
         break;
       }
-    } catch (e) { }
+    }
   }
 
   if (!copilotMarkdown) return null;
@@ -194,11 +195,11 @@ function convertDOMToMarkdown(node) {
       case 'h2': return `## ${innerText.trim()}\n\n`;
       case 'h3': return `### ${innerText.trim()}\n\n`;
       case 'p': return `${innerText.trim()}\n\n`;
-      case 'strong': case 'b': return `**${innerText}**`;
-      case 'code': return `\`${innerText}\``;
+      case 'strong': case 'b': return `**${innerText.trim()}**`;
+      case 'code': return `\`${innerText.trim()}\``;
       case 'ul': return `${innerText}\n`;
       case 'li': return `- ${innerText.trim()}\n`;
-      case 'a': return `[${innerText}](${node.href || ''})`;
+      case 'a': return `[${innerText.trim()}](${node.href || ''})`;
       default: return innerText;
     }
   }
