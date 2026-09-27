@@ -20,16 +20,14 @@ Stop waiting for slow email notifications or digging through deep GitHub UI thre
 
 Since this is a specialized power-user tool, you can load it directly into your browser:
 
-1.  **Clone** this repository:
+1.  **Clone** this repository and build it:
     ```bash
     git clone git@github.com:Infraviored/Github-Copylot.git
+    cd Github-Copylot && npm install && npm run build
     ```
-2.  Open your browser's **Extension Management** page:
-    - **Chrome**: `chrome://extensions/`
-    - **Edge**: `edge://extensions/`
-    - **Firefox**: `about:debugging#/runtime/this-firefox` (Load Temporary Add-on)
-3.  Enable **"Developer mode"** (usually a toggle in the top right).
-4.  Click **"Load unpacked"** and select the directory where you cloned this repo.
+2.  Load the build for your browser:
+    - **Chrome / Edge**: `chrome://extensions/` (or `edge://extensions/`), enable **Developer mode**, click **Load unpacked** and pick `build/chrome/`.
+    - **Firefox**: `about:debugging#/runtime/this-firefox`, **Load Temporary Add-on**, pick `build/firefox/manifest.json`.
 
 ---
 
@@ -46,11 +44,20 @@ Since this is a specialized power-user tool, you can load it directly into your 
 
 ## 📦 Packaging
 
-To create a distributable `.zip` file for sharing:
-```bash
-./package.sh
+One source tree builds both browsers:
+
 ```
-The output will be located in the `dist/` directory.
+src/                    content script and icons (shared)
+manifests/base.json     manifest keys common to both
+manifests/firefox.json  Firefox: Manifest V2, Gecko ID
+manifests/chrome.json   Chrome: Manifest V3
+```
+
+```bash
+npm run build          # build/<browser>/ and dist/github-copylot-<browser>-<version>.zip
+npm run lint:firefox   # web-ext lint on build/firefox
+npm run check:chrome   # loads build/chrome in headless Chromium
+```
 
 ---
 
